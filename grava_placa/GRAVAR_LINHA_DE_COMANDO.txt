@@ -1,0 +1,44 @@
+Gravação do HybridSkull em outra placa ESP32-P4 (JC4880P433 / 16 MB flash)
+==========================================================================
+
+Arquivos
+--------
+HYBRIDSKULL_COMPLETO_flash_em_0x0.bin   TUDO EM UM (16 MB): bootloader +
+                                        partição + app + assets. Use ESTE.
+bootloader_0x2000.bin / partition_table_0x8000.bin / app_0x10000.bin /
+spiffs_0x410000.bin                     peças avulsas (se quiser gravar
+                                        parcialmente).
+
+1) Forma simples (um comando só, grava tudo de uma vez)
+-------------------------------------------------------
+python -m esptool --chip esp32p4 -b 460800 --before default_reset \\
+       --after hard_reset -p PORTA \\
+       write_flash 0x0 HYBRIDSKULL_COMPLETO_flash_em_0x0.bin
+
+- Linux/Mac : PORTA = /dev/ttyACM0 (conforme o sistema)
+- Windows   : PORTA = COM5, COM6... (veja no Gerenciador de Dispositivos)
+
+2) Forma por partes (mesmo resultado)
+-------------------------------------
+python -m esptool --chip esp32p4 -b 460800 --before default_reset \\
+       -p PORTA write_flash \\
+       0x2000  bootloader_0x2000.bin \\
+       0x8000  partition_table_0x8000.bin \\
+       0x10000 app_0x10000.bin \\
+       0x410000 spiffs_0x410000.bin
+
+3) Se o esptool não estiver instalado na máquina nova
+-----------------------------------------------------
+pip install esptool
+
+Observações
+-----------
+- Placa nova do zero: NÃO é preciso apagar flash antes; se a placa já rodou
+  um outro sistema, apague tudo primeiro:
+    python -m esptool -p PORTA erase_flash
+- 16 MB: a partição spiffs vai até 0x1000000 (12 MB de assets) — use placa
+  com flash de 16 MB, igual à original.
+- nvs e phy_init se criam sozinhos no primeiro boot (não precisa gravar).
+- Depois de gravar, o primeiro boot carrega a UI HybridSkull completa
+  (round 25: menu colorido em grade, saída por toque no vazio, glow assado
+  na cor do amp).

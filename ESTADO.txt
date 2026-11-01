@@ -1,0 +1,41 @@
+Backup do estado do projeto ESP32-P4 (HybridSkull)
+===================================================
+Data : 2026-10-27 02:10 (round 25 flashada no hardware)
+Fonte: /home/e/esp/esp32_p4_jc4880p433c_bsp
+
+Conteudo
+--------
+- main/          codigo-fonte do app (inclui hybrid/: UI LVGL portada)
+- src/           BSP (bsp_display.c com task_max_sleep_ms=12 e ROT_270)
+- tools/         gen_assets.py (glow assado nos JPEGs, cascata do fundo HTML)
+- spiffs/        assets atuais (art/head com glow na cor do amp, thumbs, bg, pedais)
+- build_spiffs_image.bin
+.bin             imagem SPIFFS gerada e flashada em 0x410000 nesta round
+- sdkconfig      CONFIG_ESP_TASK_WDT_PANIC=y, FRAME_POINTER=y, BOOTLOADER_LOG_ERROR
+- particoes, CMakeLists, Kconfig, scripts de build
+
+EXCLUIDO do backup: build/ e managed_components/ (re-geraveis — idf.py build
+re-cria; idf component re-resolve via idf_component.yml).
+
+Estado da round 25
+------------------
+- Menu CONFIG: grade fullscreen 6x2 de tiles coloridos (cor viva por entrada),
+  corpo dos submenus usa a tela toda; saida por `< MENU` no topo + `VOLTAR <`
+  no fim + toque em LOCAL VAZIO (valido em TODAS as telas).
+- X removido a pedido do usuario (nada de botao X).
+- Rail antiga de 110px extinta (s_hub grade).
+- SALVAR (ack "OK!") e CENARIO (modo palco limpo) dentro da grade do menu.
+- Glow: assado no JPEG de art/head na cor dominante de cada amp (gen_assets
+  glow=(rgb,14/13)); sem retangulo de sombra LVGL (s_head_glow removido).
+- Pedais: 52 no GEAR sem filtro; cards sem contorno.
+- Touch/LVGL: task_max_sleep_ms=12 (clique rapido); press style ambar global.
+- MENU topo: escondido por default; aparece ao toque (timer 400ms, some apos 4s
+  de inatividade via lv_disp_get_inactive_time); oculto no modo palco (s_limpo).
+
+Como restaurar
+--------------
+1. Copiar esta pasta de volta para /home/e/esp/esp32_p4_jc4880p433c_bsp
+   (ou trocar os diretorios main/ src/ tools/ spiffs/ + sdkconfig).
+2. idf.py build   (re-cria build/ e resolve managed_components)
+3. idf.py -p /dev/ttyACM0 flash
+4. esptool write_flash 0x410000 build_spiffs_image.bin  (ou build/spiffs_image.bin)

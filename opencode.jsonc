@@ -1,0 +1,50 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+
+  "default_agent": "oldskull",
+
+  // Documentacao do projeto carregada junto com o AGENTS.md descoberto.
+  "instructions": [
+    "AGENTS.md",
+    ".hermes.md",
+    "PLANO_WEB_LVGL.md",
+    "WIFI_ARCHITECTURE.md",
+    "CAMERA_INTEGRATION.md"
+  ],
+
+  "references": {
+    "vault": {
+      "path": "/home/e/Documents/Obsidian Vault/OldSkull",
+      "description": "OldSkull notes, checkpoints and protocol reference"
+    }
+  },
+
+  "permissions": [
+    // Acesso fora do projeto sempre pede confirmacao...
+    { "action": "external_directory", "resource": "*", "effect": "ask" },
+    // ...exceto o vault do Obsidian, que e a fonte de verdade do projeto.
+    { "action": "external_directory", "resource": "/home/e/Documents/Obsidian Vault/*", "effect": "allow" },
+    { "action": "read", "resource": "/home/e/Documents/Obsidian Vault/**", "effect": "allow" },
+    { "action": "edit", "resource": "/home/e/Documents/Obsidian Vault/**", "effect": "allow" },
+
+    // Arquivos criticos: edicao sempre pede confirmacao (regra mestre).
+    { "action": "edit", "resource": "main/palco.c", "effect": "ask" },
+    { "action": "edit", "resource": "main/app_main.c", "effect": "ask" },
+    { "action": "edit", "resource": "main/wifi.c", "effect": "ask" },
+    { "action": "edit", "resource": "main/esp_now_tx.c", "effect": "ask" },
+    { "action": "edit", "resource": "main/c6_ota.c", "effect": "ask" },
+
+    // Build e flash usam o ambiente ESP-IDF correto e rodam sem confirmacao.
+    { "action": "shell", "resource": "idf.py build *", "effect": "allow" },
+    { "action": "shell", "resource": "idf.py -p *", "effect": "allow" },
+    { "action": "shell", "resource": "./build_idf.sh *", "effect": "allow" },
+    { "action": "shell", "resource": "./build.sh *", "effect": "allow" },
+    { "action": "shell", "resource": "./run.sh *", "effect": "allow" },
+    { "action": "shell", "resource": "./final_build.sh *", "effect": "allow" },
+    { "action": "shell", "resource": "./idf.sh *", "effect": "allow" },
+
+    // Gravacao direta de flash exige confirmacao.
+    { "action": "shell", "resource": "esptool.py *", "effect": "ask" },
+    { "action": "shell", "resource": "git push *", "effect": "ask" }
+  ]
+}
